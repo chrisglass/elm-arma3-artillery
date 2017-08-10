@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Basics exposing (atan2, pi, sqrt)
+import Batteries exposing (m4_scorcher)
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
 
@@ -31,32 +32,6 @@ square.
 smallest_grid : Int
 smallest_grid =
     10
-
-
-type alias RangeProfile =
-    { min_range : Int
-    , max_range : Int
-    , velocity : Float
-    }
-
-
-type alias BatteryProfile =
-    { short : RangeProfile
-    , medium : RangeProfile
-    , far : RangeProfile
-    , further : RangeProfile
-    , extreme : RangeProfile
-    }
-
-
-m4_scorcher : BatteryProfile
-m4_scorcher =
-    { short = RangeProfile 826 2415 153.9
-    , medium = RangeProfile 2059 6021 243.0
-    , far = RangeProfile 2059 6021 243.0
-    , further = RangeProfile 2059 6021 243.0
-    , extreme = RangeProfile 2059 6021 243.0
-    }
 
 
 type alias MapCoord =
