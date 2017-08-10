@@ -1,4 +1,4 @@
-module Batteries exposing (m4_scorcher)
+module Batteries exposing (BatteryProfile, m4_scorcher, mk6_mortar)
 
 {-| This module contains the definitions for the various artillery pieces,
 specifically their ranges and velocities equivalents for the various in-game
