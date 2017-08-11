@@ -1,10 +1,13 @@
 module Main exposing (main)
 
 import Basics exposing (atan, atan2, pi, sqrt)
-import Batteries exposing (BatteryProfile, mk6_mortar)
-import Html exposing (Html, button, div, input, text)
+import Batteries exposing (BatteryProfile, batteries_map, m4_scorcher)
+import Dict exposing (get, keys)
+import Html exposing (Html, button, div, fieldset, input, li, text, ul)
 import Html.Attributes as Attr
 import Html.Events exposing (onClick, onInput)
+import List exposing (map)
+import Maybe exposing (withDefault)
 import String exposing (toInt)
 
 
@@ -43,6 +46,7 @@ type alias ArtilleryModel =
     , target_x : Int
     , target_y : Int
     , target_z : Int
+    , selected_profile : BatteryProfile
     }
 
 
@@ -54,6 +58,7 @@ model =
     , target_x = 0
     , target_y = 0
     , target_z = 0
+    , selected_profile = m4_scorcher
     }
 
 
@@ -107,7 +112,7 @@ elevation : ArtilleryModel -> Float
 elevation model =
     let
         velocity =
-            mk6_mortar.medium.velocity
+            model.selected_profile.medium.velocity
 
         range =
             distance model
@@ -128,6 +133,7 @@ type Msg
     | TargetXChange String
     | TargetYChange String
     | TargetZChange String
+    | SwitchTo BatteryProfile
 
 
 update : Msg -> ArtilleryModel -> ArtilleryModel
@@ -175,9 +181,26 @@ update msg model =
             in
             { model | target_z = newInt }
 
+        SwitchTo profile ->
+            { model | selected_profile = profile }
+
 
 
 -- VIEW
+
+
+renderBatteries : String -> Html Msg
+renderBatteries one_battery =
+    let
+        battery_profile =
+            withDefault m4_scorcher (get one_battery batteries_map)
+    in
+    div []
+        [ input
+            [ Attr.type_ "radio", Attr.name "battery", onClick (SwitchTo battery_profile) ]
+            []
+        , text battery_profile.name
+        ]
 
 
 view : ArtilleryModel -> Html Msg
@@ -220,8 +243,18 @@ view model =
                 []
             ]
         , div []
+            [ text "Selected:"
+            , text model.selected_profile.name
+            ]
+        , fieldset []
+            (List.map renderBatteries (keys batteries_map))
+        , div []
             [ text "Distance: "
             , text (toString (distance model))
+            ]
+        , div []
+            [ text "Velocity:"
+            , text (toString model.selected_profile.medium.velocity)
             ]
         , div []
             [ text "Bearing: "
@@ -232,14 +265,3 @@ view model =
             , text (toString (elevation model))
             ]
         ]
-
-
-
-{--|
-view model =
-    div []
-        [ button [ onClick ComputeSolution ] [ text "Compute solution" ]
-        , div [] [ text (toString model) ]
-        , button [ onClick Increment ] [ text "+" ]
-        ]
---}
