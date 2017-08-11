@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Basics exposing (atan, atan2, pi, sqrt)
+import Basics exposing (atan, atan2, isNaN, pi, sqrt)
 import Batteries exposing (BatteryProfile, batteries_map, firstValidRangeName, firstValidRangeVelocity, m4_scorcher)
 import Dict exposing (get, keys)
 import Html exposing (Html, button, div, fieldset, input, li, text, ul)
@@ -234,6 +234,14 @@ update msg model =
 -- VIEW
 
 
+toStringOrImpossible : Float -> String
+toStringOrImpossible float =
+    if isNaN float then
+        "impossible"
+    else
+        toString float
+
+
 renderBatteries : String -> Html Msg
 renderBatteries one_battery =
     let
@@ -311,10 +319,10 @@ view model =
             ]
         , div []
             [ text "Elevation: "
-            , text (toString (elevation model))
+            , text (toStringOrImpossible (elevation model))
             ]
         , div []
             [ text "Flight time: "
-            , text (toString (timeToTarget model))
+            , text (toStringOrImpossible (timeToTarget model))
             ]
         ]
