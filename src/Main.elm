@@ -39,25 +39,24 @@ smallest_grid =
     10
 
 
+type alias MapCoord =
+    { x : Int
+    , y : Int
+    , z : Int
+    }
+
+
 type alias ArtilleryModel =
-    { battery_x : Int
-    , battery_y : Int
-    , battery_z : Int
-    , target_x : Int
-    , target_y : Int
-    , target_z : Int
+    { battery : MapCoord
+    , target : MapCoord
     , selected_profile : BatteryProfile
     }
 
 
 model : ArtilleryModel
 model =
-    { battery_x = 0
-    , battery_y = 0
-    , battery_z = 0
-    , target_x = 0
-    , target_y = 0
-    , target_z = 0
+    { battery = MapCoord 0 0 0
+    , target = MapCoord 0 0 0
     , selected_profile = m4_scorcher
     }
 
@@ -71,14 +70,16 @@ toDegrees radians =
     radians * 180 / pi
 
 
-vectorDelta : ArtilleryModel -> ( Float, Float )
-vectorDelta model =
+{-| A helper that returns a tuple of the difference between two MapCoords.
+-}
+vectorDifference : MapCoord -> MapCoord -> ( Float, Float )
+vectorDifference coord_battery coord_target =
     let
         delta_x =
-            toFloat model.target_x - toFloat model.battery_x
+            toFloat coord_target.x - toFloat coord_battery.x
 
         delta_y =
-            toFloat model.target_y - toFloat model.battery_y
+            toFloat coord_target.y - toFloat coord_battery.y
     in
     ( delta_x, delta_y )
 
@@ -87,7 +88,7 @@ bearing : ArtilleryModel -> Float
 bearing model =
     let
         ( delta_x, delta_y ) =
-            vectorDelta model
+            vectorDifference model.battery model.target
     in
     if delta_x == 0 then
         0
@@ -101,7 +102,7 @@ distance : ArtilleryModel -> Float
 distance model =
     let
         ( delta_x, delta_y ) =
-            vectorDelta model
+            vectorDifference model.battery model.target
     in
     smallest_grid * sqrt ((delta_x ^ 2) + (delta_y ^ 2))
 
@@ -118,7 +119,7 @@ elevation model =
             distance model
 
         height_diff =
-            toFloat model.target_z - toFloat model.battery_z
+            toFloat model.target.z - toFloat model.battery.z
 
         top_part =
             (velocity ^ 2) + sqrt ((velocity ^ 4) - gravity * ((gravity * range ^ 2) + (2 * height_diff * velocity ^ 2)))
@@ -141,45 +142,63 @@ update msg model =
     case msg of
         BatteryXChange changed ->
             let
-                newInt =
+                changedInt =
                     Result.withDefault 0 (String.toInt changed)
+
+                battery =
+                    model.battery
             in
-            { model | battery_x = newInt }
+            { model | battery = { battery | x = changedInt } }
 
         BatteryYChange changed ->
             let
-                newInt =
+                changedInt =
                     Result.withDefault 0 (String.toInt changed)
+
+                battery =
+                    model.battery
             in
-            { model | battery_y = newInt }
+            { model | battery = { battery | y = changedInt } }
 
         BatteryZChange changed ->
             let
-                newInt =
+                changedInt =
                     Result.withDefault 0 (String.toInt changed)
+
+                battery =
+                    model.battery
             in
-            { model | battery_z = newInt }
+            { model | battery = { battery | z = changedInt } }
 
         TargetXChange changed ->
             let
-                newInt =
+                changedInt =
                     Result.withDefault 0 (String.toInt changed)
+
+                target =
+                    model.target
             in
-            { model | target_x = newInt }
+            { model | target = { target | x = changedInt } }
 
         TargetYChange changed ->
             let
-                newInt =
+                changedInt =
                     Result.withDefault 0 (String.toInt changed)
+
+                target =
+                    model.target
             in
-            { model | target_y = newInt }
+            { model | target = { target | y = changedInt } }
 
         TargetZChange changed ->
             let
-                newInt =
+                changedInt =
                     Result.withDefault 0 (String.toInt changed)
+
+                target =
+                    model.target
             in
-            { model | target_z = newInt }
+            { model | target = { target | z = changedInt } }
 
         SwitchTo profile ->
             { model | selected_profile = profile }
