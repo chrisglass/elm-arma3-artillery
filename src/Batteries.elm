@@ -1,4 +1,4 @@
-module Batteries exposing (BatteryProfile, batteries_map, firstValidRange, m4_scorcher)
+module Batteries exposing (BatteryProfile, batteries_map, firstValidRangeName, firstValidRangeVelocity, m4_scorcher)
 
 {-| This module contains the definitions for the various artillery pieces,
 specifically their ranges and velocities equivalents for the various in-game
@@ -120,8 +120,8 @@ isExtremeValid profile range =
     isRangeValid range_profile range
 
 
-firstValidRange : BatteryProfile -> Float -> String
-firstValidRange profile range =
+firstValidRangeName : BatteryProfile -> Float -> String
+firstValidRangeName profile range =
     if isShortValid profile range then
         "short"
     else if isMediumValid profile range then
@@ -134,3 +134,19 @@ firstValidRange profile range =
         "extreme"
     else
         "impossible"
+
+
+firstValidRangeVelocity : BatteryProfile -> Float -> Float
+firstValidRangeVelocity profile range =
+    if isShortValid profile range then
+        profile.short.velocity
+    else if isMediumValid profile range then
+        profile.medium.velocity
+    else if isFarValid profile range then
+        profile.far.velocity
+    else if isFurtherValid profile range then
+        profile.further.velocity
+    else if isExtremeValid profile range then
+        profile.extreme.velocity
+    else
+        -1

@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Basics exposing (atan, atan2, pi, sqrt)
-import Batteries exposing (BatteryProfile, batteries_map, firstValidRange, m4_scorcher)
+import Batteries exposing (BatteryProfile, batteries_map, firstValidRangeName, firstValidRangeVelocity, m4_scorcher)
 import Dict exposing (get, keys)
 import Html exposing (Html, button, div, fieldset, input, li, text, ul)
 import Html.Attributes as Attr
@@ -107,13 +107,11 @@ distance model =
     smallest_grid * sqrt ((delta_x ^ 2) + (delta_y ^ 2))
 
 
-{-| Compute the elevation inclination in degrees.
--}
-elevation : ArtilleryModel -> Float
-elevation model =
+phi : ArtilleryModel -> Float
+phi model =
     let
         velocity =
-            model.selected_profile.medium.velocity
+            firstValidRangeVelocity model.selected_profile range
 
         range =
             distance model
@@ -124,7 +122,26 @@ elevation model =
         top_part =
             (velocity ^ 2) + sqrt ((velocity ^ 4) - gravity * ((gravity * range ^ 2) + (2 * height_diff * velocity ^ 2)))
     in
-    toDegrees (atan (top_part / (gravity * range)))
+    atan (top_part / (gravity * range))
+
+
+{-| Compute the elevation inclination in degrees.
+-}
+elevation : ArtilleryModel -> Float
+elevation model =
+    toDegrees (phi model)
+
+
+timeToTarget : ArtilleryModel -> Float
+timeToTarget model =
+    let
+        range =
+            distance model
+
+        velocity =
+            firstValidRangeVelocity model.selected_profile range
+    in
+    range / (velocity * cos (phi model))
 
 
 fireMode : ArtilleryModel -> String
@@ -133,7 +150,7 @@ fireMode model =
         range =
             distance model
     in
-    firstValidRange model.selected_profile range
+    firstValidRangeName model.selected_profile range
 
 
 type Msg
@@ -281,11 +298,11 @@ view model =
             , text (toString (distance model))
             ]
         , div []
-            [ text "Fire mode:"
+            [ text "Fire mode: "
             , text (fireMode model)
             ]
         , div []
-            [ text "Velocity:"
+            [ text "Velocity: "
             , text (toString model.selected_profile.medium.velocity)
             ]
         , div []
@@ -295,5 +312,9 @@ view model =
         , div []
             [ text "Elevation: "
             , text (toString (elevation model))
+            ]
+        , div []
+            [ text "Flight time: "
+            , text (toString (timeToTarget model))
             ]
         ]

@@ -42,5 +42,3 @@ A few more things need to be done here:
  - Styling of the absolutely horrible HTML this currently generates
  - Adding unit tests. It's pretty straightforward to test by hand, in-game, but
    I'd like to know how an Elm test harness is setup.
- - Adding ballistic flight time as an output (to allow battery operators to
-   inform friendlies of imminent fire rain).
