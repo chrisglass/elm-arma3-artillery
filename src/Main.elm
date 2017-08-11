@@ -1,9 +1,14 @@
 module Main exposing (main)
 
-import Basics exposing (atan2, pi, sqrt, toFloat)
-import Batteries exposing (BatteryProfile, mk6_mortar)
-import Html exposing (Html, button, div, input, text)
+import Basics exposing (atan, atan2, pi, sqrt)
+import Batteries exposing (BatteryProfile, batteries_map, m4_scorcher)
+import Dict exposing (get, keys)
+import Html exposing (Html, button, div, fieldset, input, li, text, ul)
+import Html.Attributes as Attr
 import Html.Events exposing (onClick, onInput)
+import List exposing (map)
+import Maybe exposing (withDefault)
+import String exposing (toInt)
 
 
 main =
@@ -34,25 +39,26 @@ smallest_grid =
     10
 
 
-type alias MapCoord =
-    { x : Int
-    , y : Int
-    , z : Int
-    }
-
-
 type alias ArtilleryModel =
-    { origin : MapCoord
-    , target : MapCoord
-    , active_battery : BatteryProfile
+    { battery_x : Int
+    , battery_y : Int
+    , battery_z : Int
+    , target_x : Int
+    , target_y : Int
+    , target_z : Int
+    , selected_profile : BatteryProfile
     }
 
 
 model : ArtilleryModel
 model =
-    { origin = MapCoord 0 0 0
-    , target = MapCoord 0 0 0
-    , active_battery = mk6_mortar
+    { battery_x = 0
+    , battery_y = 0
+    , battery_z = 0
+    , target_x = 0
+    , target_y = 0
+    , target_z = 0
+    , selected_profile = m4_scorcher
     }
 
 
@@ -65,28 +71,23 @@ toDegrees radians =
     radians * 180 / pi
 
 
-{-| A helper that returns a tuple of the difference between two MapCoords.
--}
-vectorDifference : MapCoord -> MapCoord -> ( Float, Float )
-vectorDifference coord1 coord2 =
+vectorDelta : ArtilleryModel -> ( Float, Float )
+vectorDelta model =
     let
         delta_x =
-            toFloat coord1.x - toFloat coord2.x
+            toFloat model.target_x - toFloat model.battery_x
 
         delta_y =
-            toFloat coord1.y - toFloat coord2.y
+            toFloat model.target_y - toFloat model.battery_y
     in
     ( delta_x, delta_y )
 
 
-{-| Get the bearing between two MapCoord. It is assumed that the first
-parameter is the origin of the bearing and the second its destination.
--}
-bearing : MapCoord -> MapCoord -> Float
-bearing coord1 coord2 =
+bearing : ArtilleryModel -> Float
+bearing model =
     let
         ( delta_x, delta_y ) =
-            vectorDifference coord1 coord2
+            vectorDelta model
     in
     if delta_x == 0 then
         0
@@ -96,16 +97,33 @@ bearing coord1 coord2 =
         90 - toDegrees (atan2 delta_y delta_x)
 
 
-{-| Compute the distance betweein two map coordinates (MapCoord types), ignoring
-elevation differences (2 dimentonal distance).
--}
-distance : MapCoord -> MapCoord -> Float
-distance coord1 coord2 =
+distance : ArtilleryModel -> Float
+distance model =
     let
         ( delta_x, delta_y ) =
-            vectorDifference coord1 coord2
+            vectorDelta model
     in
-    smallest_grid * sqrt (delta_x ^ 2) + (delta_y ^ 2)
+    smallest_grid * sqrt ((delta_x ^ 2) + (delta_y ^ 2))
+
+
+{-| Compute the elevation inclination in degrees.
+-}
+elevation : ArtilleryModel -> Float
+elevation model =
+    let
+        velocity =
+            model.selected_profile.medium.velocity
+
+        range =
+            distance model
+
+        height_diff =
+            toFloat model.target_z - toFloat model.battery_z
+
+        top_part =
+            (velocity ^ 2) + sqrt ((velocity ^ 4) - gravity * ((gravity * range ^ 2) + (2 * height_diff * velocity ^ 2)))
+    in
+    toDegrees (atan (top_part / (gravity * range)))
 
 
 type Msg
@@ -115,42 +133,135 @@ type Msg
     | TargetXChange String
     | TargetYChange String
     | TargetZChange String
+    | SwitchTo BatteryProfile
 
 
 update : Msg -> ArtilleryModel -> ArtilleryModel
 update msg model =
     case msg of
         BatteryXChange changed ->
-            { model | { origin | x = changed } }
+            let
+                newInt =
+                    Result.withDefault 0 (String.toInt changed)
+            in
+            { model | battery_x = newInt }
 
         BatteryYChange changed ->
-            { model | origin = changed }
+            let
+                newInt =
+                    Result.withDefault 0 (String.toInt changed)
+            in
+            { model | battery_y = newInt }
+
+        BatteryZChange changed ->
+            let
+                newInt =
+                    Result.withDefault 0 (String.toInt changed)
+            in
+            { model | battery_z = newInt }
+
+        TargetXChange changed ->
+            let
+                newInt =
+                    Result.withDefault 0 (String.toInt changed)
+            in
+            { model | target_x = newInt }
+
+        TargetYChange changed ->
+            let
+                newInt =
+                    Result.withDefault 0 (String.toInt changed)
+            in
+            { model | target_y = newInt }
+
+        TargetZChange changed ->
+            let
+                newInt =
+                    Result.withDefault 0 (String.toInt changed)
+            in
+            { model | target_z = newInt }
+
+        SwitchTo profile ->
+            { model | selected_profile = profile }
 
 
 
 -- VIEW
 
 
+renderBatteries : String -> Html Msg
+renderBatteries one_battery =
+    let
+        battery_profile =
+            withDefault m4_scorcher (get one_battery batteries_map)
+    in
+    div []
+        [ input
+            [ Attr.type_ "radio", Attr.name "battery", onClick (SwitchTo battery_profile) ]
+            []
+        , text battery_profile.name
+        ]
+
+
 view : ArtilleryModel -> Html Msg
 view model =
     div []
-        [ text "Battery coordinates, X Y Z"
-        , input [ onInput BatteryXChange ] []
-        , input [ onInput BatteryYChange ] []
-        , input [ onInput BatteryZChange ]
-        , text "Target coordinates, X Y Z"
-        , input [ onInput BatteryXChange ] []
-        , input [ onInput BatteryYChange ] []
-        , input [ onInput BatteryZChange ]
+        [ div []
+            [ text "Battery coordinates, X Y Z"
+            , input
+                [ Attr.type_ "number"
+                , onInput BatteryXChange
+                ]
+                []
+            , input
+                [ Attr.type_ "number"
+                , onInput BatteryYChange
+                ]
+                []
+            , input
+                [ Attr.type_ "number"
+                , onInput BatteryZChange
+                ]
+                []
+            ]
+        , div []
+            [ text "Target coordinates, X Y Z"
+            , input
+                [ Attr.type_ "number"
+                , onInput TargetXChange
+                ]
+                []
+            , input
+                [ Attr.type_ "number"
+                , onInput TargetYChange
+                ]
+                []
+            , input
+                [ Attr.type_ "number"
+                , onInput TargetZChange
+                ]
+                []
+            ]
+        , div []
+            [ text "Selected:"
+            , text model.selected_profile.name
+            ]
+        , fieldset []
+            (List.map renderBatteries (keys batteries_map))
+        , div []
+            [ text "Distance: "
+            , text (toString (distance model))
+            ]
+        , div []
+            [ text "Velocity:"
+            , text (toString model.selected_profile.medium.velocity)
+            ]
+        , div []
+            [ text "Bearing: "
+            , text (toString (bearing model))
+            ]
+        , div []
+            [ text "Elevation: "
+            , text (toString (elevation model))
+            ]
         ]
-
-
-
-{--|
-view model =
-    div []
-        [ button [ onClick ComputeSolution ] [ text "Compute solution" ]
-        , div [] [ text (toString model) ]
-        , button [ onClick Increment ] [ text "+" ]
-        ]
---}
