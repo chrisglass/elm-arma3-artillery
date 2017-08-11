@@ -1,4 +1,4 @@
-module Batteries exposing (BatteryProfile, batteries_map, m4_scorcher)
+module Batteries exposing (BatteryProfile, batteries_map, firstValidRange, m4_scorcher)
 
 {-| This module contains the definitions for the various artillery pieces,
 specifically their ranges and velocities equivalents for the various in-game
@@ -59,3 +59,78 @@ batteries_list =
 batteries_map : Dict.Dict String BatteryProfile
 batteries_map =
     Dict.fromList [ ( "mk6_mortar", mk6_mortar ), ( "m4_scorcher", m4_scorcher ) ]
+
+
+
+{- This is really frustrating. Elm seems to lack a good way to abstract this better.
+
+   It seems like I cannot generalize access to fields on a type. I can't pass "the
+   name of the field" to a function and use it further. So, I need to create one
+   "getter" (in this case, one "tester") per field. :(
+-}
+
+
+isRangeValid : RangeProfile -> Float -> Bool
+isRangeValid range_profile range =
+    (toFloat range_profile.min_range <= range) && (toFloat range_profile.max_range >= range)
+
+
+isShortValid : BatteryProfile -> Float -> Bool
+isShortValid profile range =
+    let
+        range_profile =
+            profile.short
+    in
+    isRangeValid range_profile range
+
+
+isMediumValid : BatteryProfile -> Float -> Bool
+isMediumValid profile range =
+    let
+        range_profile =
+            profile.medium
+    in
+    isRangeValid range_profile range
+
+
+isFarValid : BatteryProfile -> Float -> Bool
+isFarValid profile range =
+    let
+        range_profile =
+            profile.far
+    in
+    isRangeValid range_profile range
+
+
+isFurtherValid : BatteryProfile -> Float -> Bool
+isFurtherValid profile range =
+    let
+        range_profile =
+            profile.further
+    in
+    isRangeValid range_profile range
+
+
+isExtremeValid : BatteryProfile -> Float -> Bool
+isExtremeValid profile range =
+    let
+        range_profile =
+            profile.extreme
+    in
+    isRangeValid range_profile range
+
+
+firstValidRange : BatteryProfile -> Float -> String
+firstValidRange profile range =
+    if isShortValid profile range then
+        "short"
+    else if isMediumValid profile range then
+        "medium"
+    else if isFarValid profile range then
+        "far"
+    else if isFurtherValid profile range then
+        "further"
+    else if isExtremeValid profile range then
+        "extreme"
+    else
+        "impossible"

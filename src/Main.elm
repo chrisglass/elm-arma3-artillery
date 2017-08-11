@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Basics exposing (atan, atan2, pi, sqrt)
-import Batteries exposing (BatteryProfile, batteries_map, m4_scorcher)
+import Batteries exposing (BatteryProfile, batteries_map, firstValidRange, m4_scorcher)
 import Dict exposing (get, keys)
 import Html exposing (Html, button, div, fieldset, input, li, text, ul)
 import Html.Attributes as Attr
@@ -125,6 +125,15 @@ elevation model =
             (velocity ^ 2) + sqrt ((velocity ^ 4) - gravity * ((gravity * range ^ 2) + (2 * height_diff * velocity ^ 2)))
     in
     toDegrees (atan (top_part / (gravity * range)))
+
+
+fireMode : ArtilleryModel -> String
+fireMode model =
+    let
+        range =
+            distance model
+    in
+    firstValidRange model.selected_profile range
 
 
 type Msg
@@ -270,6 +279,10 @@ view model =
         , div []
             [ text "Distance: "
             , text (toString (distance model))
+            ]
+        , div []
+            [ text "Fire mode:"
+            , text (fireMode model)
             ]
         , div []
             [ text "Velocity:"
