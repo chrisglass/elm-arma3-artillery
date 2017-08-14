@@ -98,57 +98,70 @@ bearing model =
         90 - toDegrees (atan2 delta_y delta_x)
 
 
-distance : ArtilleryModel -> Float
-distance model =
+distance : MapCoord -> MapCoord -> Float
+distance battery_coord target_coord =
     let
         ( delta_x, delta_y ) =
-            vectorDifference model.battery model.target
+            vectorDifference battery_coord target_coord
     in
     smallest_grid * sqrt ((delta_x ^ 2) + (delta_y ^ 2))
 
 
-phi : ArtilleryModel -> Float
-phi model =
+phi : (Float -> Float -> Float) -> ArtilleryModel -> Float
+phi op model =
     let
         velocity =
             firstValidRangeVelocity model.selected_profile range
 
         range =
-            distance model
+            distance model.battery model.target
 
         height_diff =
             toFloat model.target.z - toFloat model.battery.z
 
         top_part =
-            (velocity ^ 2) + sqrt ((velocity ^ 4) - gravity * ((gravity * range ^ 2) + (2 * height_diff * velocity ^ 2)))
+            -- Here we use "op". It should either be the "+" or "-" function.
+            op (velocity ^ 2) (sqrt ((velocity ^ 4) - gravity * ((gravity * range ^ 2) + (2 * height_diff * velocity ^ 2))))
     in
     atan (top_part / (gravity * range))
 
 
 {-| Compute the elevation inclination in degrees.
+
+This function takes an "op" operator that is passed down to the phi function.
+There can be two different valid values for phi depending on the operator
+passed here (addition or substraction).
+
 -}
-elevation : ArtilleryModel -> Float
-elevation model =
-    toDegrees (phi model)
+elevation : (Float -> Float -> Float) -> ArtilleryModel -> Float
+elevation op model =
+    toDegrees (phi op model)
 
 
-timeToTarget : ArtilleryModel -> Float
-timeToTarget model =
+{-| Compute the flight time (ETA) to target.
+
+This function takes an "op" operator that is passed down to the phi function.
+There can be two different valid values for phi depending on the operator
+passed here (addition or substraction).
+
+-}
+timeToTarget : (Float -> Float -> Float) -> ArtilleryModel -> Float
+timeToTarget op model =
     let
         range =
-            distance model
+            distance model.battery model.target
 
         velocity =
             firstValidRangeVelocity model.selected_profile range
     in
-    range / (velocity * cos (phi model))
+    range / (velocity * cos (phi op model))
 
 
 fireMode : ArtilleryModel -> String
 fireMode model =
     let
         range =
-            distance model
+            distance model.battery model.target
     in
     firstValidRangeName model.selected_profile range
 
