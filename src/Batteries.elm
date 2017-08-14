@@ -129,13 +129,17 @@ isExtremeValid profile range =
 firstValidRangeName : BatteryProfile -> Float -> String
 firstValidRangeName profile range =
     if isShortValid profile range then
-        "short"
+        "close"
     else if isMediumValid profile range then
         "medium"
     else if isFarValid profile range then
         "far"
     else if isFurtherValid profile range then
-        "further"
+        -- The M5 has a special case here... :/
+        if profile == m5_mlrs then
+            "full"
+        else
+            "further"
     else if isExtremeValid profile range then
         "extreme"
     else
