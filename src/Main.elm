@@ -269,73 +269,67 @@ renderBatteries one_battery =
         ]
 
 
+renderCoordInput : String -> (String -> Msg) -> (String -> Msg) -> (String -> Msg) -> Html Msg
+renderCoordInput text_message x_message y_message z_message =
+    div []
+        [ text text_message
+        , input
+            [ Attr.type_ "number"
+            , onInput x_message
+            ]
+            []
+        , input
+            [ Attr.type_ "number"
+            , onInput y_message
+            ]
+            []
+        , input
+            [ Attr.type_ "number"
+            , onInput z_message
+            ]
+            []
+        ]
+
+
 view : ArtilleryModel -> Html Msg
 view model =
     div []
-        [ div []
-            [ text "Battery coordinates, X Y Z"
-            , input
-                [ Attr.type_ "number"
-                , onInput BatteryXChange
+        [ div [ Attr.class "input" ]
+            [ renderCoordInput "Battery coordinates (X, Y, Z):" BatteryXChange BatteryYChange BatteryZChange
+            , renderCoordInput "Target coordinates (X, Y, Z):" TargetXChange TargetYChange TargetZChange
+            , div []
+                [ text "Selected:"
+                , text model.selected_profile.name
                 ]
-                []
-            , input
-                [ Attr.type_ "number"
-                , onInput BatteryYChange
+            , fieldset []
+                (List.map renderBatteries (keys batteries_map))
+            ]
+        , div [ Attr.class "information" ]
+            [ div []
+                [ text "Distance: "
+                , text (toString (distance model.battery model.target))
                 ]
-                []
-            , input
-                [ Attr.type_ "number"
-                , onInput BatteryZChange
+            , div []
+                [ text "Velocity: "
+                , text (toString model.selected_profile.medium.velocity)
                 ]
-                []
             ]
-        , div []
-            [ text "Target coordinates, X Y Z"
-            , input
-                [ Attr.type_ "number"
-                , onInput TargetXChange
+        , div [ Attr.class "output" ]
+            [ div []
+                [ text "Fire mode: "
+                , text (fireMode model)
                 ]
-                []
-            , input
-                [ Attr.type_ "number"
-                , onInput TargetYChange
+            , div []
+                [ text "Bearing: "
+                , text (toString (bearing model))
                 ]
-                []
-            , input
-                [ Attr.type_ "number"
-                , onInput TargetZChange
+            , div []
+                [ text "Elevation: "
+                , text (toStringOrImpossible (elevation (+) model))
                 ]
-                []
-            ]
-        , div []
-            [ text "Selected:"
-            , text model.selected_profile.name
-            ]
-        , fieldset []
-            (List.map renderBatteries (keys batteries_map))
-        , div []
-            [ text "Distance: "
-            , text (toString (distance model))
-            ]
-        , div []
-            [ text "Fire mode: "
-            , text (fireMode model)
-            ]
-        , div []
-            [ text "Velocity: "
-            , text (toString model.selected_profile.medium.velocity)
-            ]
-        , div []
-            [ text "Bearing: "
-            , text (toString (bearing model))
-            ]
-        , div []
-            [ text "Elevation: "
-            , text (toStringOrImpossible (elevation model))
-            ]
-        , div []
-            [ text "Flight time: "
-            , text (toStringOrImpossible (timeToTarget model))
+            , div []
+                [ text "Flight time: "
+                , text (toStringOrImpossible (timeToTarget (+) model))
+                ]
             ]
         ]
