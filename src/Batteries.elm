@@ -51,14 +51,20 @@ mk6_mortar =
     }
 
 
-batteries_list : List String
-batteries_list =
-    [ "mk6_mortar", "m4_scorcher" ]
+m5_mlrs : BatteryProfile
+m5_mlrs =
+    { short = RangeProfile 799 4604 212.5
+    , medium = RangeProfile 3918 18418 425
+    , far = RangeProfile 7196 41442 637.5
+    , further = RangeProfile 12793 73674 772.5
+    , extreme = RangeProfile -1 -1 0.0
+    , name = "M5 MLRS"
+    }
 
 
 batteries_map : Dict.Dict String BatteryProfile
 batteries_map =
-    Dict.fromList [ ( "mk6_mortar", mk6_mortar ), ( "m4_scorcher", m4_scorcher ) ]
+    Dict.fromList [ ( "mk6_mortar", mk6_mortar ), ( "m4_scorcher", m4_scorcher ), ( "m5_mlrs", m5_mlrs ) ]
 
 
 
