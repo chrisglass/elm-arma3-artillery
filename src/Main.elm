@@ -1,7 +1,7 @@
 module Main exposing (main)
 
 import Basics exposing (atan, atan2, isNaN, pi, sqrt)
-import Batteries exposing (BatteryProfile, batteries_map, firstValidRangeName, firstValidRangeVelocity, m4_scorcher)
+import Batteries exposing (BatteryProfile, batteries_map, firstValidRangeName, firstValidRangeVelocity, mk6_mortar)
 import Dict exposing (get, keys)
 import Html exposing (Html, button, div, fieldset, input, li, text, ul)
 import Html.Attributes as Attr
@@ -57,7 +57,7 @@ model : ArtilleryModel
 model =
     { battery = MapCoord 0 0 0
     , target = MapCoord 0 0 0
-    , selected_profile = m4_scorcher
+    , selected_profile = mk6_mortar
     }
 
 
@@ -246,11 +246,11 @@ renderBatteries : String -> Html Msg
 renderBatteries one_battery =
     let
         battery_profile =
-            withDefault m4_scorcher (get one_battery batteries_map)
+            withDefault mk6_mortar (get one_battery batteries_map)
     in
     div []
         [ input
-            [ Attr.type_ "radio", Attr.name "battery", onClick (SwitchTo battery_profile) ]
+            [ Attr.type_ "radio", Attr.name "battery", Attr.checked (battery_profile == model.selected_profile), onClick (SwitchTo battery_profile) ]
             []
         , text battery_profile.name
         ]
