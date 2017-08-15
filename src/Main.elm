@@ -3,7 +3,7 @@ module Main exposing (main)
 import Basics exposing (atan, atan2, isNaN, pi, sqrt)
 import Batteries exposing (BatteryProfile, batteries_map, firstValidRangeName, firstValidRangeVelocity, mk6_mortar)
 import Dict exposing (get, keys)
-import Html exposing (Html, button, div, fieldset, input, li, text, ul)
+import Html exposing (Html, button, div, fieldset, input, li, table, text, th, tr, ul)
 import Html.Attributes as Attr
 import Html.Events exposing (onClick, onInput)
 import List exposing (map)
@@ -291,6 +291,28 @@ renderCoordInput text_message x_message y_message z_message =
         ]
 
 
+renderOutput : ArtilleryModel -> Html Msg
+renderOutput model =
+    div [ Attr.class "output" ]
+        [ div []
+            [ text "Fire mode: "
+            , text (fireMode model)
+            ]
+        , div []
+            [ text "Bearing: "
+            , text (toString (bearing model))
+            ]
+        , div []
+            [ text "Elevation: "
+            , text (toStringOrImpossible (elevation (+) model))
+            ]
+        , div []
+            [ text "Flight time: "
+            , text (toStringOrImpossible (timeToTarget (+) model))
+            ]
+        ]
+
+
 view : ArtilleryModel -> Html Msg
 view model =
     div []
@@ -314,22 +336,5 @@ view model =
                 , text (toString model.selected_profile.medium.velocity)
                 ]
             ]
-        , div [ Attr.class "output" ]
-            [ div []
-                [ text "Fire mode: "
-                , text (fireMode model)
-                ]
-            , div []
-                [ text "Bearing: "
-                , text (toString (bearing model))
-                ]
-            , div []
-                [ text "Elevation: "
-                , text (toStringOrImpossible (elevation (+) model))
-                ]
-            , div []
-                [ text "Flight time: "
-                , text (toStringOrImpossible (timeToTarget (+) model))
-                ]
-            ]
+        , renderOutput model
         ]
