@@ -303,12 +303,20 @@ renderOutput model =
             , text (toString (bearing model))
             ]
         , div []
-            [ text "Elevation: "
+            [ text "Elevation 1: "
             , text (toStringOrImpossible (elevation (+) model))
             ]
         , div []
-            [ text "Flight time: "
+            [ text "Flight time 1: "
             , text (toStringOrImpossible (timeToTarget (+) model))
+            ]
+        , div []
+            [ text "Elevation 2: "
+            , text (toStringOrImpossible (elevation (-) model))
+            ]
+        , div []
+            [ text "Flight time 2: "
+            , text (toStringOrImpossible (timeToTarget (-) model))
             ]
         ]
 
