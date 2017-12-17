@@ -22,7 +22,7 @@ Since this is my fist project with Elm I am likely to do things wrong. I would
 be very, very happy to hear what I could improve and why! A few of my
 discoveries have surprised me a little, in particular:
 
-- It seems to be harder than it should to update nested model types.e
+- It seems to be harder than it should to update nested model types.
 - I can't seem to find a way to iterate over fields of a type elegantly. In
   other words: I can't seem to write a function that takes a type and the name
   of a field, then do anything useful with the value of that field.
