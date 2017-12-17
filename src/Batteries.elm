@@ -87,7 +87,7 @@ isShortValid profile range =
         range_profile =
             profile.short
     in
-    isRangeValid range_profile range
+        isRangeValid range_profile range
 
 
 isMediumValid : BatteryProfile -> Float -> Bool
@@ -96,7 +96,7 @@ isMediumValid profile range =
         range_profile =
             profile.medium
     in
-    isRangeValid range_profile range
+        isRangeValid range_profile range
 
 
 isFarValid : BatteryProfile -> Float -> Bool
@@ -105,7 +105,7 @@ isFarValid profile range =
         range_profile =
             profile.far
     in
-    isRangeValid range_profile range
+        isRangeValid range_profile range
 
 
 isFurtherValid : BatteryProfile -> Float -> Bool
@@ -114,7 +114,7 @@ isFurtherValid profile range =
         range_profile =
             profile.further
     in
-    isRangeValid range_profile range
+        isRangeValid range_profile range
 
 
 isExtremeValid : BatteryProfile -> Float -> Bool
@@ -123,7 +123,7 @@ isExtremeValid profile range =
         range_profile =
             profile.extreme
     in
-    isRangeValid range_profile range
+        isRangeValid range_profile range
 
 
 firstValidRangeName : BatteryProfile -> Float -> String

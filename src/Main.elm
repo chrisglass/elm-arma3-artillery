@@ -81,7 +81,7 @@ vectorDifference coord_battery coord_target =
         delta_y =
             toFloat coord_target.y - toFloat coord_battery.y
     in
-    ( delta_x, delta_y )
+        ( delta_x, delta_y )
 
 
 bearing : ArtilleryModel -> Float
@@ -90,12 +90,12 @@ bearing model =
         ( delta_x, delta_y ) =
             vectorDifference model.battery model.target
     in
-    if delta_x == 0 then
-        0
-    else if delta_x <= 0 && delta_y >= 0 then
-        450 - toDegrees (atan2 delta_y delta_x)
-    else
-        90 - toDegrees (atan2 delta_y delta_x)
+        if delta_x == 0 then
+            0
+        else if delta_x <= 0 && delta_y >= 0 then
+            450 - toDegrees (atan2 delta_y delta_x)
+        else
+            90 - toDegrees (atan2 delta_y delta_x)
 
 
 distance : MapCoord -> MapCoord -> Float
@@ -104,7 +104,7 @@ distance battery_coord target_coord =
         ( delta_x, delta_y ) =
             vectorDifference battery_coord target_coord
     in
-    smallest_grid * sqrt ((delta_x ^ 2) + (delta_y ^ 2))
+        smallest_grid * sqrt ((delta_x ^ 2) + (delta_y ^ 2))
 
 
 phi : (Float -> Float -> Float) -> ArtilleryModel -> Float
@@ -123,7 +123,7 @@ phi op model =
             -- Here we use "op". It should either be the "+" or "-" function.
             op (velocity ^ 2) (sqrt ((velocity ^ 4) - gravity * ((gravity * range ^ 2) + (2 * height_diff * velocity ^ 2))))
     in
-    atan (top_part / (gravity * range))
+        atan (top_part / (gravity * range))
 
 
 {-| Compute the elevation inclination in degrees.
@@ -154,7 +154,7 @@ timeToTarget op model =
         velocity =
             firstValidRangeVelocity model.selected_profile range
     in
-    range / (velocity * cos (phi op model))
+        range / (velocity * cos (phi op model))
 
 
 fireMode : ArtilleryModel -> String
@@ -163,7 +163,7 @@ fireMode model =
         range =
             distance model.battery model.target
     in
-    firstValidRangeName model.selected_profile range
+        firstValidRangeName model.selected_profile range
 
 
 type Msg
@@ -187,7 +187,7 @@ update msg model =
                 battery =
                     model.battery
             in
-            { model | battery = { battery | x = changedInt } }
+                { model | battery = { battery | x = changedInt } }
 
         BatteryYChange changed ->
             let
@@ -197,7 +197,7 @@ update msg model =
                 battery =
                     model.battery
             in
-            { model | battery = { battery | y = changedInt } }
+                { model | battery = { battery | y = changedInt } }
 
         BatteryZChange changed ->
             let
@@ -207,7 +207,7 @@ update msg model =
                 battery =
                     model.battery
             in
-            { model | battery = { battery | z = changedInt } }
+                { model | battery = { battery | z = changedInt } }
 
         TargetXChange changed ->
             let
@@ -217,7 +217,7 @@ update msg model =
                 target =
                     model.target
             in
-            { model | target = { target | x = changedInt } }
+                { model | target = { target | x = changedInt } }
 
         TargetYChange changed ->
             let
@@ -227,7 +227,7 @@ update msg model =
                 target =
                     model.target
             in
-            { model | target = { target | y = changedInt } }
+                { model | target = { target | y = changedInt } }
 
         TargetZChange changed ->
             let
@@ -237,7 +237,7 @@ update msg model =
                 target =
                     model.target
             in
-            { model | target = { target | z = changedInt } }
+                { model | target = { target | z = changedInt } }
 
         SwitchTo profile ->
             { model | selected_profile = profile }
@@ -261,12 +261,12 @@ renderBatteries one_battery =
         battery_profile =
             withDefault mk6_mortar (get one_battery batteries_map)
     in
-    div []
-        [ input
-            [ Attr.type_ "radio", Attr.name "battery", Attr.checked (battery_profile == model.selected_profile), onClick (SwitchTo battery_profile) ]
-            []
-        , text battery_profile.name
-        ]
+        div []
+            [ input
+                [ Attr.type_ "radio", Attr.name "battery", Attr.checked (battery_profile == model.selected_profile), onClick (SwitchTo battery_profile) ]
+                []
+            , text battery_profile.name
+            ]
 
 
 renderCoordInput : String -> (String -> Msg) -> (String -> Msg) -> (String -> Msg) -> Html Msg
