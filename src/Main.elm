@@ -247,6 +247,10 @@ update msg model =
 -- VIEW
 
 
+borderStyle =
+    Attr.style [ ( "border", "red" ), ( "border-style", "solid" ) ]
+
+
 toStringOrImpossible : Float -> String
 toStringOrImpossible float =
     if isNaN float then
@@ -293,7 +297,7 @@ renderCoordInput text_message x_message y_message z_message =
 
 renderOutput : ArtilleryModel -> Html Msg
 renderOutput model =
-    div [ Attr.class "output" ]
+    div [ Attr.class "output", borderStyle ]
         [ div []
             [ text "Fire mode: "
             , text (fireMode model)
@@ -324,17 +328,26 @@ renderOutput model =
 view : ArtilleryModel -> Html Msg
 view model =
     div []
-        [ div [ Attr.class "input" ]
-            [ renderCoordInput "Battery coordinates (X, Y, Z):" BatteryXChange BatteryYChange BatteryZChange
+        [ div []
+            [ text "This is a new version of the artillery calculator, entirely written in Elm. It should work perfectly, but looks ugly." ]
+        , div []
+            [ text "If you want to help to make it look better feel free to get in touch (or send a PR)."
+            ]
+        , div [ Attr.style [ ( "padding-bottom", "2em" ) ] ]
+            [ text "Project is at: https://github.com/chrisglass/elm-arma3-artillery"
+            ]
+        , div [ Attr.class "input" ]
+            [ div [] [ text "Coordinates are *4* numbers each (estimate last one)." ]
+            , renderCoordInput "Battery coordinates (X, Y, Z):" BatteryXChange BatteryYChange BatteryZChange
             , renderCoordInput "Target coordinates (X, Y, Z):" TargetXChange TargetYChange TargetZChange
-            , div []
+            , div [ Attr.style [ ( "padding-top", "2em" ) ] ]
                 [ text "Selected:"
                 , text model.selected_profile.name
                 ]
             , fieldset []
                 (List.map renderBatteries (keys batteries_map))
             ]
-        , div [ Attr.class "information" ]
+        , div [ Attr.class "information", Attr.style [ ( "padding-top", "2em" ) ] ]
             [ div []
                 [ text "Distance: "
                 , text (toString (distance model.battery model.target))
