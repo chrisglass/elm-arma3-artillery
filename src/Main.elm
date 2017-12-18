@@ -303,11 +303,11 @@ renderOutput model =
         [ div [ Attr.class "tile is-vertical is-8" ]
             [ div [ Attr.class "tile" ]
                 [ div [ Attr.class "tile is-parent is-vertical" ]
-                    [ article [ Attr.class "tile is-child notification is-primary" ]
+                    [ article [ Attr.class "tile is-child notification is-warning" ]
                         [ p [ Attr.class "title" ] [ text "Fire mode: " ]
                         , p [ Attr.class "subtitle" ] [ text (fireMode model) ]
                         ]
-                    , article [ Attr.class "title is-child notification is-warning" ]
+                    , article [ Attr.class "title is-child notification is-success" ]
                         [ p [ Attr.class "title" ] [ text "Bearing" ]
                         , p [ Attr.class "subtitle" ]
                             [ text (toStringOrImpossible (bearing model))
@@ -331,7 +331,7 @@ renderOutput model =
                 ]
             ]
         , div [ Attr.class "tile is-parent" ]
-            [ article [ Attr.class "tile is-child notification is-success" ]
+            [ article [ Attr.class "tile is-child notification is-info" ]
                 [ p [ Attr.class "title" ] [ text "Solution 2" ]
                 , p [ Attr.class "subtitle" ]
                     [ text "Elevation: "
@@ -384,7 +384,7 @@ view model =
         , section [ Attr.class "section" ]
             [ div [ Attr.class "container" ]
                 [ h1 [ Attr.class "title" ] [ text "Output" ]
-                , p [] [ text "Input those into the game, and press fire." ]
+                , p [] [ text "Set those into the game, then press fire." ]
                 , renderOutput model
                 ]
             ]
