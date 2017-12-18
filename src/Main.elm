@@ -3,12 +3,13 @@ module Main exposing (main)
 import Basics exposing (atan, atan2, isNaN, pi, sqrt)
 import Batteries exposing (BatteryProfile, batteries_map, firstValidRangeName, firstValidRangeVelocity, mk6_mortar)
 import Dict exposing (get, keys)
-import Html exposing (Html, button, div, fieldset, input, li, table, text, th, tr, ul)
+import Html exposing (Html, button, div, fieldset, input, li, table, text, th, tr, ul, node, section, h1, h2, body, label, article, p)
 import Html.Attributes as Attr
 import Html.Events exposing (onClick, onInput)
 import List exposing (map)
 import Maybe exposing (withDefault)
 import String exposing (toInt)
+import Round exposing (round)
 
 
 main =
@@ -247,16 +248,12 @@ update msg model =
 -- VIEW
 
 
-borderStyle =
-    Attr.style [ ( "border", "red" ), ( "border-style", "solid" ) ]
-
-
 toStringOrImpossible : Float -> String
 toStringOrImpossible float =
     if isNaN float then
         "impossible"
     else
-        toString float
+        Round.round 2 float
 
 
 renderBatteries : String -> Html Msg
@@ -275,52 +272,76 @@ renderBatteries one_battery =
 
 renderCoordInput : String -> (String -> Msg) -> (String -> Msg) -> (String -> Msg) -> Html Msg
 renderCoordInput text_message x_message y_message z_message =
-    div []
-        [ text text_message
-        , input
-            [ Attr.type_ "number"
-            , onInput x_message
+    div [ Attr.class "field" ]
+        [ label [ Attr.class "label" ] [ text text_message ]
+        , div [ Attr.class "control columns" ]
+            [ input
+                [ Attr.type_ "number"
+                , Attr.class "input is-medium column"
+                , onInput x_message
+                ]
+                []
+            , input
+                [ Attr.type_ "number"
+                , Attr.class "input is-medium column"
+                , onInput y_message
+                ]
+                []
+            , input
+                [ Attr.type_ "number"
+                , Attr.class "input is-medium column"
+                , onInput z_message
+                ]
+                []
             ]
-            []
-        , input
-            [ Attr.type_ "number"
-            , onInput y_message
-            ]
-            []
-        , input
-            [ Attr.type_ "number"
-            , onInput z_message
-            ]
-            []
         ]
 
 
 renderOutput : ArtilleryModel -> Html Msg
 renderOutput model =
-    div [ Attr.class "output", borderStyle ]
-        [ div []
-            [ text "Fire mode: "
-            , text (fireMode model)
+    div [ Attr.class "tile is-ancestor" ]
+        [ div [ Attr.class "tile is-vertical is-8" ]
+            [ div [ Attr.class "tile" ]
+                [ div [ Attr.class "tile is-parent is-vertical" ]
+                    [ article [ Attr.class "tile is-child notification is-primary" ]
+                        [ p [ Attr.class "title" ] [ text "Fire mode: " ]
+                        , p [ Attr.class "subtitle" ] [ text (fireMode model) ]
+                        ]
+                    , article [ Attr.class "title is-child notification is-warning" ]
+                        [ p [ Attr.class "title" ] [ text "Bearing" ]
+                        , p [ Attr.class "subtitle" ]
+                            [ text (toStringOrImpossible (bearing model))
+                            ]
+                        ]
+                    ]
+                , div
+                    [ Attr.class "tile is-parent" ]
+                    [ article [ Attr.class "tile is-child notification is-info" ]
+                        [ p [ Attr.class "title" ] [ text "Solution 1" ]
+                        , p [ Attr.class "subtitle" ]
+                            [ text "Elevation: "
+                            , text (toStringOrImpossible (elevation (+) model))
+                            ]
+                        , p [ Attr.class "subtitle" ]
+                            [ text "Flight time (seconds): "
+                            , text (toStringOrImpossible (timeToTarget (+) model))
+                            ]
+                        ]
+                    ]
+                ]
             ]
-        , div []
-            [ text "Bearing: "
-            , text (toString (bearing model))
-            ]
-        , div []
-            [ text "Elevation 1: "
-            , text (toStringOrImpossible (elevation (+) model))
-            ]
-        , div []
-            [ text "Flight time 1: "
-            , text (toStringOrImpossible (timeToTarget (+) model))
-            ]
-        , div []
-            [ text "Elevation 2: "
-            , text (toStringOrImpossible (elevation (-) model))
-            ]
-        , div []
-            [ text "Flight time 2: "
-            , text (toStringOrImpossible (timeToTarget (-) model))
+        , div [ Attr.class "tile is-parent" ]
+            [ article [ Attr.class "tile is-child notification is-success" ]
+                [ p [ Attr.class "title" ] [ text "Solution 2" ]
+                , p [ Attr.class "subtitle" ]
+                    [ text "Elevation: "
+                    , text (toStringOrImpossible (elevation (-) model))
+                    ]
+                , p [ Attr.class "subtitle" ]
+                    [ text "Flight time (seconds): "
+                    , text (toStringOrImpossible (timeToTarget (-) model))
+                    ]
+                ]
             ]
         ]
 
@@ -328,34 +349,43 @@ renderOutput model =
 view : ArtilleryModel -> Html Msg
 view model =
     div []
-        [ div []
-            [ text "This is a new version of the artillery calculator, entirely written in Elm. It should work perfectly, but looks ugly." ]
-        , div []
-            [ text "If you want to help to make it look better feel free to get in touch (or send a PR)."
-            ]
-        , div [ Attr.style [ ( "padding-bottom", "2em" ) ] ]
-            [ text "Project is at: https://github.com/chrisglass/elm-arma3-artillery"
-            ]
-        , div [ Attr.class "input" ]
-            [ div [] [ text "Coordinates are *4* numbers each (estimate last one)." ]
-            , renderCoordInput "Battery coordinates (X, Y, Z):" BatteryXChange BatteryYChange BatteryZChange
-            , renderCoordInput "Target coordinates (X, Y, Z):" TargetXChange TargetYChange TargetZChange
-            , div [ Attr.style [ ( "padding-top", "2em" ) ] ]
-                [ text "Selected:"
-                , text model.selected_profile.name
-                ]
-            , fieldset []
-                (List.map renderBatteries (keys batteries_map))
-            ]
-        , div [ Attr.class "information", Attr.style [ ( "padding-top", "2em" ) ] ]
-            [ div []
-                [ text "Distance: "
-                , text (toString (distance model.battery model.target))
-                ]
-            , div []
-                [ text "Velocity: "
-                , text (toString model.selected_profile.medium.velocity)
+        [ section [ Attr.class "hero is-primary" ]
+            [ div [ Attr.class "hero-body" ]
+                [ div [ Attr.class "container" ]
+                    [ h1 [ Attr.class "title" ] [ text "Tribaal's Arma3 artillery computer." ]
+                    , h2 [ Attr.class "subtitle" ]
+                        [ text "Project is at: https://github.com/chrisglass/elm-arma3-artillery"
+                        ]
+                    ]
                 ]
             ]
-        , renderOutput model
+        , section [ Attr.class "section" ]
+            [ div [ Attr.class "container" ]
+                [ h1 [ Attr.class "title" ] [ text "Input" ]
+                , p [] [ text "Type in 4-digit coordinates here - the normal grid and an estimation of the 4th digit." ]
+                , renderCoordInput "Battery coordinates (X, Y, Z):" BatteryXChange BatteryYChange BatteryZChange
+                , renderCoordInput "Target coordinates (X, Y, Z):" TargetXChange TargetYChange TargetZChange
+                ]
+            ]
+        , section [ Attr.class "section" ]
+            [ div [ Attr.class "container" ]
+                [ h1 [ Attr.class "title" ] [ text "Battery" ]
+                , p [] [ text "The battery you are shooting with." ]
+                , p []
+                    [ text "Selected: "
+                    , text model.selected_profile.name
+                    ]
+                ]
+            , div [ Attr.class "container" ]
+                [ fieldset []
+                    (List.map renderBatteries (keys batteries_map))
+                ]
+            ]
+        , section [ Attr.class "section" ]
+            [ div [ Attr.class "container" ]
+                [ h1 [ Attr.class "title" ] [ text "Output" ]
+                , p [] [ text "Input those into the game, and press fire." ]
+                , renderOutput model
+                ]
+            ]
         ]

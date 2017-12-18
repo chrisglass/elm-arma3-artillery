@@ -1,2 +1,2 @@
 build:
-	elm make src/Main.elm
+	elm make --output artillery.js src/Main.elm
