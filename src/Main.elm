@@ -354,13 +354,19 @@ view model =
                 [ div [ Attr.class "container" ]
                     [ h1 [ Attr.class "title" ] [ text "Tribaal's Arma3 artillery computer." ]
                     , h2 [ Attr.class "subtitle" ] [ text "Rewritten in Elm for your exploding pleasure." ]
-                    , p []
-                        [ text "Fill in the input coordinates for both the battery and your target using 4-digit grid"
-                        , text " coordinates, then select the battery type you are shooting with."
-                        ]
-                    , p [] [ text "The program will compute firing solutions in the 'output section.'" ]
-                    , p [] [ text "The code for this project can be found ", a [ Attr.href "https://github.com/chrisglass/elm-arma3-artillery" ] [ text "on Github" ] ]
                     ]
+                ]
+            ]
+        , section [ Attr.class "section" ]
+            [ div [ Attr.class "container" ]
+                [ h2 [ Attr.class "subtitle" ] [ text "Instructions" ]
+                , p []
+                    [ text "Fill in the input coordinates for both the battery and your target using 4-digit grid"
+                    , text " coordinates, then select the battery type you are shooting with."
+                    ]
+                , p [] [ text "The program will compute firing solutions in the 'output section.'" ]
+                , p [] [ text "The code for this project can be found ", a [ Attr.href "https://github.com/chrisglass/elm-arma3-artillery" ] [ text "on Github" ] ]
+                , p [] [ text "Is this page useful? Is it not? ", a [ Attr.href "https://twitter.com/3baal" ] [ text "Don't hesitate to let me know!" ] ]
                 ]
             ]
         , section [ Attr.class "section" ]
