@@ -303,7 +303,7 @@ renderOutput model =
         [ div [ Attr.class "tile is-vertical is-8" ]
             [ div [ Attr.class "tile" ]
                 [ div [ Attr.class "tile is-parent is-vertical" ]
-                    [ article [ Attr.class "tile is-child notification is-warning" ]
+                    [ article [ Attr.class "tile is-child notification is-primary" ]
                         [ p [ Attr.class "title" ] [ text "Fire mode: " ]
                         , p [ Attr.class "subtitle" ] [ text (fireMode model) ]
                         ]
