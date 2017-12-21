@@ -3,7 +3,7 @@ module Main exposing (main)
 import Basics exposing (atan, atan2, isNaN, pi, sqrt)
 import Batteries exposing (BatteryProfile, batteries_map, firstValidRangeName, firstValidRangeVelocity, mk6_mortar)
 import Dict exposing (get, keys)
-import Html exposing (Html, button, div, fieldset, input, li, table, text, th, tr, ul, node, section, h1, h2, body, label, article, p)
+import Html exposing (Html, button, div, fieldset, input, li, table, text, th, tr, ul, node, section, h1, h2, body, label, article, p, a)
 import Html.Attributes as Attr
 import Html.Events exposing (onClick, onInput)
 import List exposing (map)
@@ -353,9 +353,13 @@ view model =
             [ div [ Attr.class "hero-body" ]
                 [ div [ Attr.class "container" ]
                     [ h1 [ Attr.class "title" ] [ text "Tribaal's Arma3 artillery computer." ]
-                    , h2 [ Attr.class "subtitle" ]
-                        [ text "Project is at: https://github.com/chrisglass/elm-arma3-artillery"
+                    , h2 [ Attr.class "subtitle" ] [ text "Rewritten in Elm for your exploding pleasure." ]
+                    , p []
+                        [ text "Fill in the input coordinates for both the battery and your target using 4-digit grid"
+                        , text " coordinates, then select the battery type you are shooting with."
                         ]
+                    , p [] [ text "The program will compute firing solutions in the 'output section.'" ]
+                    , p [] [ text "The code for this project can be found ", a [ Attr.href "https://github.com/chrisglass/elm-arma3-artillery" ] [ text "on Github" ] ]
                     ]
                 ]
             ]
