@@ -167,78 +167,55 @@ fireMode model =
         firstValidRangeName model.selected_profile range
 
 
+type Actor
+    = Battery
+    | Target
+
+
+type Axis
+    = X
+    | Y
+    | Z
+
+
 type Msg
-    = BatteryXChange String
-    | BatteryYChange String
-    | BatteryZChange String
-    | TargetXChange String
-    | TargetYChange String
-    | TargetZChange String
+    = UpdateCoord Actor Axis String
     | SwitchTo BatteryProfile
 
 
 update : Msg -> ArtilleryModel -> ArtilleryModel
 update msg model =
     case msg of
-        BatteryXChange changed ->
+        UpdateCoord actor axis changed ->
             let
                 changedInt =
                     Result.withDefault 0 (String.toInt changed)
 
-                battery =
-                    model.battery
+                currentActor =
+                    case actor of
+                        Battery ->
+                            model.battery
+
+                        Target ->
+                            model.target
+
+                updatedActor =
+                    case axis of
+                        X ->
+                            { currentActor | x = changedInt }
+
+                        Y ->
+                            { currentActor | y = changedInt }
+
+                        Z ->
+                            { currentActor | z = changedInt }
             in
-                { model | battery = { battery | x = changedInt } }
+                case actor of
+                    Battery ->
+                        { model | battery = updatedActor }
 
-        BatteryYChange changed ->
-            let
-                changedInt =
-                    Result.withDefault 0 (String.toInt changed)
-
-                battery =
-                    model.battery
-            in
-                { model | battery = { battery | y = changedInt } }
-
-        BatteryZChange changed ->
-            let
-                changedInt =
-                    Result.withDefault 0 (String.toInt changed)
-
-                battery =
-                    model.battery
-            in
-                { model | battery = { battery | z = changedInt } }
-
-        TargetXChange changed ->
-            let
-                changedInt =
-                    Result.withDefault 0 (String.toInt changed)
-
-                target =
-                    model.target
-            in
-                { model | target = { target | x = changedInt } }
-
-        TargetYChange changed ->
-            let
-                changedInt =
-                    Result.withDefault 0 (String.toInt changed)
-
-                target =
-                    model.target
-            in
-                { model | target = { target | y = changedInt } }
-
-        TargetZChange changed ->
-            let
-                changedInt =
-                    Result.withDefault 0 (String.toInt changed)
-
-                target =
-                    model.target
-            in
-                { model | target = { target | z = changedInt } }
+                    Target ->
+                        { model | target = updatedActor }
 
         SwitchTo profile ->
             { model | selected_profile = profile }
@@ -270,27 +247,27 @@ renderBatteries one_battery =
             ]
 
 
-renderCoordInput : String -> (String -> Msg) -> (String -> Msg) -> (String -> Msg) -> Html Msg
-renderCoordInput text_message x_message y_message z_message =
+renderCoordInput : String -> Actor -> Html Msg
+renderCoordInput text_message actor =
     div [ Attr.class "field" ]
         [ label [ Attr.class "label" ] [ text text_message ]
         , div [ Attr.class "control columns" ]
             [ input
                 [ Attr.type_ "number"
                 , Attr.class "input is-medium column"
-                , onInput x_message
+                , onInput <| UpdateCoord actor X
                 ]
                 []
             , input
                 [ Attr.type_ "number"
                 , Attr.class "input is-medium column"
-                , onInput y_message
+                , onInput <| UpdateCoord actor Y
                 ]
                 []
             , input
                 [ Attr.type_ "number"
                 , Attr.class "input is-medium column"
-                , onInput z_message
+                , onInput <| UpdateCoord actor Z
                 ]
                 []
             ]
@@ -373,8 +350,8 @@ view model =
             [ div [ Attr.class "container" ]
                 [ h1 [ Attr.class "title" ] [ text "Input" ]
                 , p [] [ text "Type in 4-digit coordinates here - the normal grid and an estimation of the 4th digit." ]
-                , renderCoordInput "Battery coordinates (X, Y, Z):" BatteryXChange BatteryYChange BatteryZChange
-                , renderCoordInput "Target coordinates (X, Y, Z):" TargetXChange TargetYChange TargetZChange
+                , renderCoordInput "Battery coordinates (X, Y, Z):" Battery
+                , renderCoordInput "Target coordinates (X, Y, Z):" Target
                 ]
             ]
         , section [ Attr.class "section" ]
