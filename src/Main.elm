@@ -54,6 +54,22 @@ type alias ArtilleryModel =
     }
 
 
+type Actor
+    = Battery
+    | Target
+
+
+type Axis
+    = X
+    | Y
+    | Z
+
+
+type Msg
+    = UpdateCoord Actor Axis String
+    | SwitchTo BatteryProfile
+
+
 model : ArtilleryModel
 model =
     { battery = MapCoord 0 0 0
@@ -165,22 +181,6 @@ fireMode model =
             distance model.battery model.target
     in
         firstValidRangeName model.selected_profile range
-
-
-type Actor
-    = Battery
-    | Target
-
-
-type Axis
-    = X
-    | Y
-    | Z
-
-
-type Msg
-    = UpdateCoord Actor Axis String
-    | SwitchTo BatteryProfile
 
 
 update : Msg -> ArtilleryModel -> ArtilleryModel
